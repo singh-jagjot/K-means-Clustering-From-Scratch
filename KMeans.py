@@ -63,11 +63,8 @@ class KMeans:
         return np.nan_to_num(centroids)
 
     def _compute_cost(self, centroids:np.ndarray,centroid_idx:np.ndarray):
-        cost = 0
-        for i in range(self.X.shape[0]):
-            distance = np.linalg.norm(self.X[i] - centroids[centroid_idx[i]])
-            cost += distance
-        return cost / centroids.shape[0]
+        distances = np.linalg.norm(self.X - centroids[centroid_idx], axis=1)
+        return np.mean(distances)
 
     def start(self, kmeans_iter:int = 1):
         kmeans_iter_cost = np.zeros(kmeans_iter)
@@ -82,13 +79,12 @@ class KMeans:
                 centroid_idx = self._find_closest_centroid(centroids)
                 centroids = self._compute_centroids(centroid_idx, centroids)
                 cost = self._compute_cost(centroids, centroid_idx)
-                print("     Cost: ", cost)
+                print("     Distortion: ", cost)
                 if cost >= previous_cost:
                     break
                 previous_cost = cost
+                print("     ",centroid_idx.shape, centroids.shape)
             kmeans_iter_cost[iter] = cost
             kmeans_iter_values.append((centroids, centroid_idx))
-        print("Costs: ", kmeans_iter_cost)
-        print("Arg min: ", np.argmin(kmeans_iter_cost))
         return kmeans_iter_values[np.argmin(kmeans_iter_cost)]
     
