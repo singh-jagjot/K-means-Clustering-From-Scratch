@@ -21,7 +21,7 @@ class KMeans:
         centroid_idx = np.zeros(self.X.shape[0], dtype=int)
         for i in range(self.X.shape[0]):
             distance = float('inf')
-            for j in range(self.centroids.shape):
+            for j in range(self.centroids.shape[0]):
                 l2norm = np.linalg.norm(self.X[i] - self.centroid[j])
                 if l2norm < distance:
                     distance = l2norm
@@ -29,5 +29,14 @@ class KMeans:
 
         return centroid_idx
     
-    
 
+    def _compute_centroids(self):
+        centroid_idx = self._compute_centroids()
+        centroid_sum = np.zeros_like(self.centroids)
+        centroid_total_ele = np.zeros(self.centroids.shape[0])
+        for i in range(self.X.shape[0]):
+            centroid_sum[centroid_idx[i]] += self.X[i] 
+            centroid_total_ele[i] += 1
+        return centroid_sum / centroid_total_ele
+    
+    
