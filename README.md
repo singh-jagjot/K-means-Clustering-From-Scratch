@@ -8,7 +8,8 @@ I have also implemented the cost/distortion function and logic to run K-means up
     >python3 -m pip install --upgrade pip  
     >python3 -m pip install --upgrade Pillow  
     >python3 -m pip install --upgrade matplotlib  
-3) Run cells in image_compression_kmeans.ipynb file???
+    >python3 -m pip install --upgrade jupyterlab  
+3) Run jupyter-lab to open/run image_compression_kmeans.ipynb file.  
 
 ## References:
 1) Machine Learning Specialization by Andew Ng on [**Coursera**](https://www.coursera.org/specializations/machine-learning-introduction).  
