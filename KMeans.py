@@ -4,7 +4,7 @@ import time
 
 class KMeans:
     def __init__(self, X: np.ndarray, K: int, max_iters: int, iters: int = 1) -> None:
-        """X: Vector for using K-means.
+        """X: Vector for performing K-means.
         K: Number of clusters.
         max_iters: Maximum number of iterations for a single run.
         iters: Maximum number of times to run K-means. Final result
@@ -100,7 +100,8 @@ class KMeans:
         return np.mean(distances)
 
     # Starts the K-means algorithm.
-    def optimize(self):
+    def fit(self):
+        """Perform K-means with initialized parameters."""
         min_distortion = np.inf
         best_vals = None
         best_iter = -1
