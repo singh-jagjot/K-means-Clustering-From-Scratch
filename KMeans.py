@@ -18,6 +18,10 @@ class KMeans:
         # Selecting K elements from X using rand_idx
         return self.X[rand_idx[:self.K]]
 
+    def init_centroids_kmeans_pp(self):
+        centroids = np.zeros((self.K, ))
+        pass
+
     def _find_closest_centroid(self, centroids):
         K = centroids.shape[0]
         # centroid_idx = np.zeros(self.X.shape[0], dtype=int)
@@ -52,15 +56,27 @@ class KMeans:
         return centroid_idx3
 
     def _compute_centroids(self, centroid_idx:np.ndarray, centroids:np.ndarray):
-        centroid_sum = np.zeros_like(centroids)
-        centroid_total_ele = np.zeros(centroids.shape[0])
-        for i in range(self.X.shape[0]):
-            centroid_sum[centroid_idx[i]] += self.X[i]
-            centroid_total_ele[centroid_idx[i]] += 1
-        # print(centroid_total_ele)
-        # print(centroid_sum)
-        centroids = centroid_sum / centroid_total_ele.reshape((centroid_total_ele.shape[0], 1))
-        return np.nan_to_num(centroids)
+        # Slow Logic as loop runs for every X.shape[0]
+        # t = time.time()
+        # centroid_sum = np.zeros_like(centroids)
+        # centroid_total_ele = np.zeros(centroids.shape[0])
+        # for i in range(self.X.shape[0]):
+        #     centroid_sum[centroid_idx[i]] += self.X[i]
+        #     centroid_total_ele[centroid_idx[i]] += 1
+        # centroids = centroid_sum / centroid_total_ele.reshape((centroid_total_ele.shape[0], 1))
+        # print("compute_centroids logic 1: ", time.time()-t)
+
+        # Fast Logic as loop runs for every K where K << X.shape[0]
+        t = time.time()
+        centroid_sum_ = np.zeros_like(centroids)
+        centroid_total_ele_ = np.zeros(centroids.shape[0])
+        for i in range(self.K):
+            centroid_sum_[i] = self.X[centroid_idx==i].sum(axis=0)
+            centroid_total_ele_[i] = self.X[centroid_idx==i].shape[0]
+        centroids_ = centroid_sum_ / centroid_total_ele_.reshape((centroid_total_ele_.shape[0], 1))
+        print("compute_centroids logic 2: ", time.time()-t)
+
+        return np.nan_to_num(centroids_)
 
     def _compute_cost(self, centroids:np.ndarray,centroid_idx:np.ndarray):
         distances = np.linalg.norm(self.X - centroids[centroid_idx], axis=1)
@@ -69,6 +85,7 @@ class KMeans:
     def start(self, kmeans_iter:int = 1):
         kmeans_iter_cost = np.zeros(kmeans_iter)
         kmeans_iter_values = []
+        
         for iter in range(kmeans_iter):
             centroid_idx = None
             centroids = self._init_centroids()
