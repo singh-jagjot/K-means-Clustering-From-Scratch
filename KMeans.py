@@ -5,17 +5,18 @@ import time
 class KMeans:
     def __init__(self, X: np.ndarray, K: int, max_iters: int, iters: int = 1) -> None:
         """X: Vector for using K-means.
-            K: Number of clusters.
-            max_iters: Maximum number of iterations for a single run.
-            iters: Maximum number of times to run K-means. Final result
-                  will have best(have low distortion) of 'iters' runs.
-                  Default = 1.
+        K: Number of clusters.
+        max_iters: Maximum number of iterations for a single run.
+        iters: Maximum number of times to run K-means. Final result
+              will have best(have low distortion) of 'iters' runs.
+              Default = 1.
         """
         self.X = X
         self.K = K
         self.max_iters = max_iters
         self.iters = iters
 
+    # Initializing centroids randomly.
     def _init_centroids(self):
         m, _ = self.X.shape
 
@@ -24,17 +25,15 @@ class KMeans:
         rand_idx = np.random.permutation(m)
 
         # Selecting K elements from X using rand_idx
-        return self.X[rand_idx[:self.K]]
+        return self.X[rand_idx[: self.K]]
 
-    def _init_centroids_kmeans_pp(self):
-        centroids = np.zeros((self.K, ))
-        pass
-
+    # Computes a ndarray of indices of closest centroid for every X[i].
+    # Closest centroid for X[i] is centroid_idx_[i].
     def _find_closest_centroid(self, centroids):
         K = centroids.shape[0]
         # centroid_idx = np.zeros(self.X.shape[0], dtype=int)
         # centroid_idx2 = np.zeros(self.X.shape[0], dtype=int)
-        centroid_idx3 = np.zeros(self.X.shape[0], dtype=int)
+        centroid_idx_ = np.zeros(self.X.shape[0], dtype=int)
         # t = time.time()
         # for i in range(self.X.shape[0]):
         #     min_distance = float('inf')
@@ -51,18 +50,17 @@ class KMeans:
         # print("logic 2: ", time.time()-t)
 
         # t = time.time()
-        ci = np.zeros((K, self.X.shape[0]))
+        centroid_distances = np.zeros((K, self.X.shape[0]))
         for i in range(K):
-            ci[i] = np.linalg.norm(self.X - centroids[i], axis=1)
-        centroid_idx3 = np.argmin(ci, axis=0)
+            centroid_distances[i] = np.linalg.norm(self.X - centroids[i], axis=1)
+        centroid_idx_ = np.argmin(centroid_distances, axis=0)
         # print("logic 3: ", time.time()-t)
 
-        # print("1 == 2: ", np.array_equal(centroid_idx, centroid_idx2))
-        # print("1 == 3: ", np.array_equal(centroid_idx, centroid_idx3))
-        # print("2 == 3: ", np.array_equal(centroid_idx2, centroid_idx3))
-        # print("     Orphan Centroids: ", K - np.unique(centroid_idx3).shape[0])
-        return centroid_idx3
+        # print("     Orphan Centroids: ", K - np.unique(centroid_idx_).shape[0])
+        return centroid_idx_
 
+    # Computes a ndarray of new/better centroids.
+    #
     def _compute_centroids(self, centroid_idx: np.ndarray, centroids: np.ndarray):
         # Slow Logic as loop runs for every X.shape[0]
         # t = time.time()
@@ -76,45 +74,66 @@ class KMeans:
 
         # Fast Logic as loop runs for every K. Assuming K << X.shape[0].
         # t = time.time()
+
+        # Stores the sum of every X[i] closest to centroid C[j].
+        # i < X.shape[0], j < K
         centroid_sum_ = np.zeros_like(centroids)
+        # Stores total number of X[i] closest to centroid C[j].
+        # i < X.shape[0], j < K
         centroid_total_ele_ = np.zeros(centroids.shape[0])
         for i in range(self.K):
-            centroid_sum_[i] = self.X[centroid_idx == i].sum(axis=0)
-            centroid_total_ele_[i] = self.X[centroid_idx == i].shape[0]
-        centroids_ = centroid_sum_ / \
-            centroid_total_ele_.reshape((centroid_total_ele_.shape[0], 1))
+            temp = self.X[centroid_idx == i]
+            centroid_sum_[i] = temp.sum(axis=0)
+            centroid_total_ele_[i] = temp.shape[0]
+
+        # Computing average to get updated centroid C[j].
+        centroids_ = centroid_sum_ / centroid_total_ele_.reshape(
+            (centroid_total_ele_.shape[0], 1)
+        )
         # print("compute_centroids logic 2: ", time.time()-t)
 
         return np.nan_to_num(centroids_)
 
-    # This method computes 'distortion'
+    # This method computes 'Distortion' or 'Cost'.
     def _compute_cost(self, centroids: np.ndarray, centroid_idx: np.ndarray):
         distances = np.linalg.norm(self.X - centroids[centroid_idx], axis=1)
         return np.mean(distances)
 
+    # Starts the K-means algorithm.
     def optimize(self):
         min_distortion = np.inf
         best_vals = None
         best_iter = -1
         for iter in range(self.iters):
             centroid_idx = None
+            # Initializing centroids randomly at start.
             centroids = self._init_centroids()
             cost = np.inf
-            for i in range(self.max_iters):
-                # print(" Iteration: ", i+1)
+            for itr in range(self.max_iters):
                 centroid_idx = self._find_closest_centroid(centroids)
                 centroids = self._compute_centroids(centroid_idx, centroids)
                 current_cost = self._compute_cost(centroids, centroid_idx)
-                # print(" Distortion: ", cost)
+                print(
+                    "K-means Iteration: {}, Iteration: {} Current Distortion: {}".format(
+                        iter + 1, itr + 1, current_cost
+                    )
+                )
+
+                # Breaking loop if converged early.
                 if current_cost >= cost:
                     break
                 cost = current_cost
+
+            # Updating the variables if new best is found.
             if min_distortion > cost:
                 min_distortion = cost
                 best_vals = (centroids, centroid_idx, min_distortion)
                 best_iter = iter + 1
-            print("K-means Iteration: {}, Distortion: {}, Best: ({}, {})".format(iter +
-                  1, cost, best_iter, min_distortion))
+            print(
+                "K-means Iteration: {}, Distortion: {}, Best: ({}, {})\n".format(
+                    iter + 1, cost, best_iter, min_distortion
+                )
+            )
+
+        # Returning the best values.
         return best_vals
-
-
