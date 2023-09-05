@@ -14,4 +14,7 @@ I have also implemented the cost/distortion function and logic to run K-means up
 1) Machine Learning Specialization by Andew Ng on [**Coursera**](https://www.coursera.org/specializations/machine-learning-introduction).  
 2) Main notes from Stanford CS229 course.  
 
+# Output:
+![figure that compares outputs with the original](https://github.com/singh-jagjot/image-compression-with-K-means/blob/main/output/results.png)
+
 **Note**: All images are downloaded from [**Pixabay**](https://pixabay.com) and are used according to the license.
