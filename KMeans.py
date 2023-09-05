@@ -7,9 +7,9 @@ class KMeans:
         """X: Vector for performing K-means.
         K: Number of clusters.
         max_iters: Maximum number of iterations for a single run.
-        iters: Maximum number of times to run K-means. Final result
-              will have best(have low distortion) of 'iters' runs.
-              Default = 1.
+        iters: Maximum number of times to run K-means. The final 
+              result will have best(have low distortion) of 'iters' 
+              runs. Default = 1.
         """
         self.X = X
         self.K = K
@@ -101,7 +101,10 @@ class KMeans:
 
     # Starts the K-means algorithm.
     def fit(self):
-        """Perform K-means with initialized parameters."""
+        """
+        Perform K-means with initialized parameters.
+        Returns: (centroids, centroid_idx, min_distortion)
+        """
         min_distortion = np.inf
         best_vals = None
         best_iter = -1
