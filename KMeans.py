@@ -31,10 +31,9 @@ class KMeans:
     # Closest centroid for X[i] is centroid_idx_[i].
     def _find_closest_centroid(self, centroids):
         K = centroids.shape[0]
-        # centroid_idx = np.zeros(self.X.shape[0], dtype=int)
-        # centroid_idx2 = np.zeros(self.X.shape[0], dtype=int)
-        centroid_idx_ = np.zeros(self.X.shape[0], dtype=int)
+        # Slow logic
         # t = time.time()
+        # centroid_idx = np.zeros(self.X.shape[0], dtype=int)
         # for i in range(self.X.shape[0]):
         #     min_distance = float('inf')
         #     for j in range(K):
@@ -44,12 +43,16 @@ class KMeans:
         #             centroid_idx[i] = j
         # print("logic 1: ", time.time()-t)
 
+        # Slow logic
         # t = time.time()
+        # centroid_idx2 = np.zeros(self.X.shape[0], dtype=int)
         # for i in range(self.X.shape[0]):
         #     centroid_idx2[i] = np.argmin(np.linalg.norm(centroids - self.X[i], axis=1))
         # print("logic 2: ", time.time()-t)
 
+        # Fast Logic as loop runs for every K. Assuming K << X.shape[0].
         # t = time.time()
+        centroid_idx_ = np.zeros(self.X.shape[0], dtype=int)
         centroid_distances = np.zeros((K, self.X.shape[0]))
         for i in range(K):
             centroid_distances[i] = np.linalg.norm(self.X - centroids[i], axis=1)
